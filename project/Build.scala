@@ -3,7 +3,7 @@ import sbt._
 case class Remote(uri: String, branch: String)
 
 object Config {
-  val scalaSTM = Remote("https://github.com/fcristovao/scala-stm.git", "master")
+  val scalaSTM = Remote("https://github.com/fcristovao/scala-stm.git", "svstm")
 }
 
 object Projects {
