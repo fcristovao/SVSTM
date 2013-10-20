@@ -41,15 +41,9 @@ abstract class Transaction(val number: Int, val parent: Transaction = null) exte
 	//override def retry(): Nothing
 	
 	def atomic[A](block: InTxn => A): A = {
-		try{
-			val result = block(this)
-			this.doCommit()
-			result
-		} 
-		catch {
-			case WriteOnReadException | CommitException => Transaction().atomic(block)
-			// The "Transaction().atomic(block)" is an error, because we could be in an nested transaction and a CommitException would make it a top-level one
-		}
+		val result = block(this)
+		this.doCommit()
+		result
 	}
 	
 }
