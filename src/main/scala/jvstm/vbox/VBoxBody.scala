@@ -1,6 +1,6 @@
 package jvstm.vbox
 
-class VBoxBody[A](@volatile var value: A, val version: Int,  val next: VBoxBody[A]) {
+class VBoxBody[+A](val value: A, val version: Int,  val next: VBoxBody[A]) {
 	
 	def this(v0: A) = this(v0, 0, null)
 	
