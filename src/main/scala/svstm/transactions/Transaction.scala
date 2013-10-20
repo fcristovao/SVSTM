@@ -1,19 +1,32 @@
-package jvstm.transactions
+package svstm.transactions
 
-import jvstm.vbox.VBox
+import svstm.vbox.VBox
+import svstm.exceptions.{WriteOnReadException, CommitException}
 import scala.concurrent.stm.InTxn
-import scala.concurrent.stm.stubs.StubInTxnEnd
+import scala.concurrent.stm.stubs.StubInTxn
 import java.util.concurrent.locks.ReentrantLock
 import java.util.concurrent.atomic.AtomicInteger
+
 
 object Transaction{
 	val CommitLock = new ReentrantLock(true);
 	
 	val mostRecentNumber = new AtomicInteger(0);
+	
+	def apply(readOnly: Boolean = false, parent: Transaction = null) : Transaction = {
+		
+		if(readOnly){
+			new TopLevelReadTransaction(Transaction.mostRecentNumber.get())
+		} else {
+			new TopLevelReadWriteTransaction(Transaction.mostRecentNumber.get())
+		}
+	}
+	
 }
 
 
-abstract class Transaction(val number: Int, val parent: Transaction = null) extends InTxn with StubInTxnEnd{
+
+abstract class Transaction(val number: Int, val parent: Transaction = null) extends InTxn with StubInTxn{
 
 	def this(parent: Transaction) = this(parent.number, parent)
 
@@ -22,4 +35,21 @@ abstract class Transaction(val number: Int, val parent: Transaction = null) exte
 	def setBoxValue[T](vbox: VBox[T], value: T)
     
   def doCommit()
+	
+	def makeNestedTransaction(): Transaction
+	
+	//override def retry(): Nothing
+	
+	def atomic[A](block: InTxn => A): A = {
+		try{
+			val result = block(this)
+			this.doCommit()
+			result
+		} 
+		catch {
+			case WriteOnReadException | CommitException => Transaction().atomic(block)
+			// The "Transaction().atomic(block)" is an error, because we could be in an nested transaction and a CommitException would make it a top-level one
+		}
+	}
+	
 }

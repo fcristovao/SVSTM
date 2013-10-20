@@ -1,6 +1,6 @@
-package jvstm.exceptions
+package svstm.exceptions
 
-sealed trait JVSTMExceptions extends Error
+sealed trait SVSTMExceptions extends Error
 
 /**
  * An instance of <code>WriteOnReadException</code> is thrown by a
@@ -11,7 +11,7 @@ sealed trait JVSTMExceptions extends Error
  * purpose of throwing an instance of this class is to make a
  * non-local exit from the currently running transaction, and restart
  * it with a new type of transaction that is able to deal with writes.
- * This is done by the JVSTM runtime and should not be masked by the
+ * This is done by the SVSTM runtime and should not be masked by the
  * application code in anyway.
  *
  * The class <code>WriteOnReadException</code> is specifically a
@@ -21,5 +21,5 @@ sealed trait JVSTMExceptions extends Error
  * the exception.
  *
  */
-case object WriteOnReadException extends JVSTMExceptions
-case object CommitException extends JVSTMExceptions
+case object WriteOnReadException extends SVSTMExceptions
+case object CommitException extends SVSTMExceptions

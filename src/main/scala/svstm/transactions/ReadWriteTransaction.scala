@@ -1,13 +1,13 @@
-package jvstm.transactions
+package svstm.transactions
 
 import scala.collection.mutable.Map
 import scala.collection.immutable.List
-import jvstm.vbox.VBox
-import jvstm.vbox.VBoxBody
+import svstm.vbox.VBox
+import svstm.vbox.VBoxBody
 
 abstract class ReadWriteTransaction(number: Int, parent: ReadWriteTransaction = null) extends Transaction(number, parent) {
 
-	val boxesWritten = Map[VBox[_],Any]()
+	var boxesWritten = Map[VBox[_],Any]()
 	var bodiesRead = List[(VBox[_],VBoxBody[_])]()
 	
 	protected def getLocalValue[T](vbox: VBox[T]): Option[T] = {
@@ -38,4 +38,8 @@ abstract class ReadWriteTransaction(number: Int, parent: ReadWriteTransaction = 
   
   def tryCommit() : Unit
 
+  def makeNestedTransaction: Transaction = {
+  	new NestedReadWriteTransaction(this)
+  }
+  
 }

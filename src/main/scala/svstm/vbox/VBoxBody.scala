@@ -1,4 +1,4 @@
-package jvstm.vbox
+package svstm.vbox
 
 class VBoxBody[+A](val value: A, val version: Int,  val next: VBoxBody[A]) {
 	

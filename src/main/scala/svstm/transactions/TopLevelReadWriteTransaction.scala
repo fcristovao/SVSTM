@@ -1,5 +1,5 @@
-package jvstm.transactions
-import jvstm.exceptions.CommitException
+package svstm.transactions
+import svstm.exceptions.CommitException
 
 class TopLevelReadWriteTransaction(number: Int, parent: ReadWriteTransaction = null) extends ReadWriteTransaction(number, parent) {
 

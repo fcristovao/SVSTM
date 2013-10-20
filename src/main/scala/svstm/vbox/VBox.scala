@@ -1,4 +1,4 @@
-package jvstm.vbox
+package svstm.vbox
 
 import scala.concurrent.stm.stubs.StubRef
 import scala.concurrent.stm.InTxn
