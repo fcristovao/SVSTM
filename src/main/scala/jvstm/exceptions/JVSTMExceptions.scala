@@ -22,3 +22,4 @@ sealed trait JVSTMExceptions extends Error
  *
  */
 case object WriteOnReadException extends JVSTMExceptions
+case object CommitException extends JVSTMExceptions
