@@ -6,6 +6,6 @@ scalaVersion := "2.10.2"
 
 //libraryDependencies += ("org.scala-stm" %% "scala-stm" % "0.7")
 
-libraryDependencies += "org.scalatest" % "scalatest_2.10" % "1.9.2" % "test"
+libraryDependencies += "org.scalatest" % "scalatest_2.10" % "2.0" % "test"
 
 testOptions in Test += Tests.Setup( () => System.setProperty("scala.stm.impl", "scala.concurrent.stm.svstm.SVSTM") )
