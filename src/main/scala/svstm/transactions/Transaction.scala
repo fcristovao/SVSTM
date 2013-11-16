@@ -6,25 +6,18 @@ import scala.concurrent.stm.InTxn
 import scala.concurrent.stm.stubs.StubInTxn
 import java.util.concurrent.locks.ReentrantLock
 import java.util.concurrent.atomic.AtomicInteger
+import scala.concurrent.stm.svstm.SVSTMTxnExecutor
 
 
 object Transaction{
-	val CommitLock = new ReentrantLock(true);
-	
-	val mostRecentNumber = new AtomicInteger(0);
-	
 	def apply(readOnly: Boolean = false, parent: Transaction = null) : Transaction = {
-		
 		if(readOnly){
-			new TopLevelReadTransaction(Transaction.mostRecentNumber.get())
+			new TopLevelReadTransaction(SVSTMTxnExecutor.mostRecentNumber.get())
 		} else {
-			new TopLevelReadWriteTransaction(Transaction.mostRecentNumber.get())
+			new TopLevelReadWriteTransaction(SVSTMTxnExecutor.mostRecentNumber.get())
 		}
 	}
-	
 }
-
-
 
 abstract class Transaction(val number: Int, val parent: Transaction = null) extends InTxn with StubInTxn{
 

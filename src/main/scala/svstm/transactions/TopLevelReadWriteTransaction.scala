@@ -1,5 +1,6 @@
 package svstm.transactions
 import svstm.exceptions.CommitException
+import scala.concurrent.stm.svstm.SVSTMTxnExecutor
 
 class TopLevelReadWriteTransaction(number: Int, parent: ReadWriteTransaction = null) extends ReadWriteTransaction(number, parent) {
 
@@ -7,19 +8,19 @@ class TopLevelReadWriteTransaction(number: Int, parent: ReadWriteTransaction = n
 	
 	def tryCommit() = {
 		if(isWriteTransaction){
-			Transaction.CommitLock.lock()
+			SVSTMTxnExecutor.commitLock.lock()
 			try{
 				if(isValidCommit()){
-					val newTxNumber = Transaction.mostRecentNumber.get() + 1
+					val newTxNumber = SVSTMTxnExecutor.mostRecentNumber.get() + 1
 					
 					doCommit(newTxNumber)
 					
-					Transaction.mostRecentNumber.incrementAndGet()
+					SVSTMTxnExecutor.mostRecentNumber.incrementAndGet()
 				} else {
 					throw CommitException
 				}
 			} finally {
-				Transaction.CommitLock.unlock()
+				SVSTMTxnExecutor.commitLock.unlock()
 			}
 		}
 	}
