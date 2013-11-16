@@ -14,11 +14,4 @@ class NestedReadWriteTransaction(number: Int, parent: ReadWriteTransaction = nul
 		    parent.boxesWritten ++= boxesWritten;
 		}
 	}
-	
-	override def atomic[A](block: InTxn => A): A = {
-		val result = block(this) 
-		this.doCommit() // if it throws an exception, let it be caught by the parent.
-		result
-	}
-	
 }
