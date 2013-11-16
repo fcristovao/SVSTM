@@ -15,6 +15,7 @@ import scala.concurrent.stm._
 class RefImpl[A](v0: A) extends VBox[A](v0) with StubRef[A]{
 	class ViewImpl[A](override val ref: Ref[A]) extends Ref.View[A] with StubRef.StubView[A]{
 		override def get(): A = atomic(implicit t => ref())
+		override def set(v: A) = atomic(implicit t => ref() = v)
 	}
 
 	private def impl(implicit txn: InTxn): Transaction = txn.asInstanceOf[Transaction]
