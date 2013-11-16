@@ -1,6 +1,6 @@
 package svstm.exceptions
 
-sealed trait SVSTMExceptions extends Error
+sealed trait SVSTMException extends Error
 
 /**
  * An instance of <code>WriteOnReadException</code> is thrown by a
@@ -21,5 +21,5 @@ sealed trait SVSTMExceptions extends Error
  * the exception.
  *
  */
-case object WriteOnReadException extends SVSTMExceptions
-case object CommitException extends SVSTMExceptions
+case object WriteOnReadTransactionException extends SVSTMException
+case object CommitException extends SVSTMException

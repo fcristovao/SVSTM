@@ -1,42 +1,40 @@
 package svstm.transactions
 
-import svstm.vbox.VBox
-import svstm.exceptions.{WriteOnReadException, CommitException}
 import scala.concurrent.stm.InTxn
 import scala.concurrent.stm.stubs.StubInTxn
-import java.util.concurrent.locks.ReentrantLock
-import java.util.concurrent.atomic.AtomicInteger
 import scala.concurrent.stm.svstm.SVSTMTxnExecutor
 
+import svstm.vbox.VBox
 
-object Transaction{
-	def apply(readOnly: Boolean = false, parent: Transaction = null) : Transaction = {
-		if(readOnly){
-			new TopLevelReadTransaction(SVSTMTxnExecutor.mostRecentNumber.get())
-		} else {
-			new TopLevelReadWriteTransaction(SVSTMTxnExecutor.mostRecentNumber.get())
+object Transaction {
+	def apply(readOnly: Boolean = false, parent: Transaction = null): Transaction = {
+		(parent, readOnly) match {
+			case (null, true) => new TopLevelReadTransaction(SVSTMTxnExecutor.mostRecentNumber.get())
+			case (null, false) => new TopLevelReadWriteTransaction(SVSTMTxnExecutor.mostRecentNumber.get())
+			case (txn, _) => txn.makeNestedTransaction()
 		}
 	}
 }
 
-abstract class Transaction(val number: Int, val parent: Transaction = null) extends InTxn with StubInTxn{
-
+abstract class Transaction(val number: Int, val parent: Transaction = null) extends InTxn with StubInTxn {
 	def this(parent: Transaction) = this(parent.number, parent)
 
-	def getBoxValue[T](vbox: VBox[T]) : T
+	def getBoxValue[T](vbox: VBox[T]): T
 
 	def setBoxValue[T](vbox: VBox[T], value: T)
-    
-  def doCommit()
-	
+
+	def doCommit()
+
 	def makeNestedTransaction(): Transaction
+
+	def hasParent() = parent != null;
 	
-	//override def retry(): Nothing
-	
+	def isTopLevel() = !hasParent()
+
 	def atomic[A](block: InTxn => A): A = {
 		val result = block(this)
 		this.doCommit()
 		result
 	}
-	
+
 }

@@ -1,7 +1,7 @@
 package scala.concurrent.stm.svstm
 
 import svstm.transactions.{ Transaction, TopLevelReadTransaction, TopLevelReadWriteTransaction }
-import svstm.exceptions.{ WriteOnReadException, CommitException }
+import svstm.exceptions.{ WriteOnReadTransactionException, CommitException, SVSTMException }
 import scala.concurrent.stm._
 import scala.concurrent.stm.stubs.StubTxnExecutor
 import java.util.concurrent.locks.ReentrantLock
@@ -35,16 +35,20 @@ trait SVSTMTxnExecutor extends StubTxnExecutor {
 	}
 
 	protected def execute[Z](txn: Transaction, block: InTxn => Z): Z = {
+		SVSTMTxnExecutor.currentTransaction.set(txn);
 		try {
-			SVSTMTxnExecutor.currentTransaction.set(txn);
-			val result = txn.atomic(block)
-			SVSTMTxnExecutor.currentTransaction.set(txn.parent)
-			result
+			txn.atomic(block)
 		} catch {
-			case WriteOnReadException | CommitException => {
-				val newTxn = Transaction(readOnly = false, parent = txn.parent)
-				execute(newTxn, block)
+			case e : SVSTMException => {
+				if (txn.isTopLevel) {
+					val newTxn = Transaction(readOnly = false)
+					execute(newTxn, block)
+				} else {
+					throw e
+				}
 			}
+		} finally {
+			SVSTMTxnExecutor.currentTransaction.set(txn.parent)
 		}
 	}
 }

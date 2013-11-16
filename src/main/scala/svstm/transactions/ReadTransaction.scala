@@ -1,7 +1,7 @@
 package svstm.transactions
 
+import svstm.exceptions.WriteOnReadTransactionException
 import svstm.vbox.VBox
-import svstm.exceptions.WriteOnReadException
 
 class ReadTransaction(number: Int, parent: ReadTransaction = null) extends Transaction(number, parent) {
 
@@ -9,7 +9,7 @@ class ReadTransaction(number: Int, parent: ReadTransaction = null) extends Trans
 	
   def getBoxValue[T](vbox: VBox[T]): T =  vbox.body.getBody(number).value 
 
-  def setBoxValue[T](vbox: VBox[T], value: T): Unit = throw WriteOnReadException
+  def setBoxValue[T](vbox: VBox[T], value: T): Unit = throw WriteOnReadTransactionException
 
   def doCommit(): Unit = {
   	//nothing to do
