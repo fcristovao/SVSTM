@@ -6,7 +6,7 @@ import scala.concurrent.stm.MaybeTxn
 import scala.concurrent.stm.TxnUnknown
 import scala.concurrent.stm.impl.TxnContext
 
-class SVSTMTxnContext extends ThreadLocal[Transaction] with TxnContext {
+trait SVSTMTxnContext extends TxnContext {
 	override def findCurrent(implicit mt: MaybeTxn): Option[InTxn] = {
 		mt match {
 			case TxnUnknown => {
@@ -19,5 +19,5 @@ class SVSTMTxnContext extends ThreadLocal[Transaction] with TxnContext {
 		}
 	}
 	
-  override def dynCurrentOrNull: InTxn = get
+  override def dynCurrentOrNull: InTxn = SVSTMTxnExecutor.currentTransaction.get()
 }

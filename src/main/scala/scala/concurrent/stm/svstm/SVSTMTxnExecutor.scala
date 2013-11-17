@@ -12,9 +12,7 @@ object SVSTMTxnExecutor {
 
 	val mostRecentNumber = new AtomicInteger(0);
 
-	val currentTransaction = new SVSTMTxnContext();
-
-	def isInTransaction() = currentTransaction.dynCurrentOrNull != null;
+	val currentTransaction = new ThreadLocal[Transaction];
 }
 
 trait SVSTMTxnExecutor extends StubTxnExecutor {
@@ -22,7 +20,7 @@ trait SVSTMTxnExecutor extends StubTxnExecutor {
 		val txn =
 			mt match {
 				case TxnUnknown => { // no static scoped transaction exists
-					SVSTMTxnExecutor.currentTransaction.dynCurrentOrNull match {
+					SVSTMTxnExecutor.currentTransaction.get match { // try to get the current transaction dynamically
 						case null => Transaction(readOnly = true);
 						case txn: Transaction => txn.makeNestedTransaction()
 					}
